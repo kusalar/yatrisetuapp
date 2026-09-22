@@ -2,6 +2,7 @@ plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.compose.compiler)
   alias(libs.plugins.kotlin.serialization)
+  alias(libs.plugins.ksp)
 }
 
 android {
@@ -88,6 +89,7 @@ dependencies {
   // Room Local Database
   implementation(libs.room.runtime)
   implementation(libs.room.ktx)
+  ksp(libs.room.compiler)
 
   // Security Crypto
   implementation(libs.androidx.security.crypto)

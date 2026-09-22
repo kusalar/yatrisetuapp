@@ -118,7 +118,7 @@ fun YatriStatusPill(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .semantics {
-                contentDescription?.let { this.contentDescription = it }
+                contentDesc?.let { this.contentDescription = it }
             }
             .clip(RoundedCornerShape(YatriRadius.Pill))
             .background(bgColor)
