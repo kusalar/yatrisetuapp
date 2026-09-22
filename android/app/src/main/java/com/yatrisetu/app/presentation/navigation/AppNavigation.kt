@@ -91,7 +91,7 @@ fun AppNavigation(
                         navController.navigate(Screen.Alternatives.createRoute(id))
                     },
                     onNavigateToItinerary = {
-                        navController.navigate(Screen.Itinerary.route)
+                        navController.navigate(Screen.Itinerary.createRoute())
                     },
                     onNavigateToHomestays = {
                         navController.navigate(Screen.Homestays.route)
@@ -115,6 +115,9 @@ fun AppNavigation(
                     },
                     onNavigateToAlternatives = { id ->
                         navController.navigate(Screen.Alternatives.createRoute(id))
+                    },
+                    onNavigateToItinerary = { id, name ->
+                        navController.navigate(Screen.Itinerary.createRoute(id, name))
                     }
                 )
             }
@@ -142,14 +145,31 @@ fun AppNavigation(
                     originId = destinationId,
                     onNavigateBack = { navController.popBackStack() },
                     onSelectAlternative = { altId ->
-                        navController.navigate(Screen.Itinerary.route)
+                        navController.navigate(Screen.DestinationDetail.createRoute(altId))
                     }
                 )
             }
 
-            composable(Screen.Itinerary.route) {
+            composable(
+                route = Screen.Itinerary.route,
+                arguments = listOf(
+                    navArgument("destinationId") {
+                        type = NavType.StringType
+                        defaultValue = "darjeeling"
+                    },
+                    navArgument("destinationName") {
+                        type = NavType.StringType
+                        defaultValue = "Darjeeling"
+                    }
+                )
+            ) { backStackEntry ->
+                val rawId = backStackEntry.arguments?.getString("destinationId") ?: "darjeeling"
+                val destinationId = if (rawId.startsWith("{") || rawId.isBlank()) "darjeeling" else rawId
+                val rawName = backStackEntry.arguments?.getString("destinationName") ?: "Darjeeling"
+                val destinationName = if (rawName.startsWith("{") || rawName.isBlank()) "Darjeeling" else rawName
                 ItineraryScreen(
-                    destinationName = "Kalimpong",
+                    destinationId = destinationId,
+                    destinationName = destinationName,
                     onNavigateBack = { navController.popBackStack() },
                     onSelectHomestay = {
                         navController.navigate(Screen.Homestays.route)

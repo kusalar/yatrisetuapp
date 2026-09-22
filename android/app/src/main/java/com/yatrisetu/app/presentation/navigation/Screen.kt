@@ -12,7 +12,10 @@ sealed class Screen(val route: String) {
     object Alternatives : Screen("destination/{id}/alternatives") {
         fun createRoute(id: String = "darjeeling") = "destination/$id/alternatives"
     }
-    object Itinerary : Screen("itinerary")
+    object Itinerary : Screen("itinerary?destinationId={destinationId}&destinationName={destinationName}") {
+        fun createRoute(destinationId: String = "darjeeling", destinationName: String = "Darjeeling") =
+            "itinerary?destinationId=$destinationId&destinationName=$destinationName"
+    }
     object Homestays : Screen("homestays")
     object Booking : Screen("booking?homestayId={homestayId}") {
         fun createRoute(homestayId: String) = "booking?homestayId=$homestayId"

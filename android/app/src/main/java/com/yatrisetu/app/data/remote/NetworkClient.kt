@@ -15,6 +15,7 @@ object NetworkClient {
         ignoreUnknownKeys = true
         coerceInputValues = true
         isLenient = true
+        encodeDefaults = true
     }
 
     private val okHttpClient: OkHttpClient by lazy {
@@ -28,9 +29,9 @@ object NetworkClient {
 
         OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
-            .connectTimeout(15, TimeUnit.SECONDS)
-            .readTimeout(20, TimeUnit.SECONDS)
-            .writeTimeout(15, TimeUnit.SECONDS)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(120, TimeUnit.SECONDS)   // Groq LLM generation can take 60–90s
+            .writeTimeout(45, TimeUnit.SECONDS)
             .build()
     }
 

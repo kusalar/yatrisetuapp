@@ -16,6 +16,22 @@ import com.yatrisetu.app.domain.model.CrowdLevel
 import com.yatrisetu.app.domain.model.Destination
 import com.yatrisetu.app.domain.model.DestinationAttributes
 import com.yatrisetu.app.domain.model.DestinationSummary
+import com.yatrisetu.app.data.remote.dto.AlternativeAcceptanceResponseDto
+import com.yatrisetu.app.data.remote.dto.AlternativeRecommendationDto
+import com.yatrisetu.app.data.remote.dto.AlternativeWeatherDto
+import com.yatrisetu.app.data.remote.dto.AlternativesResponseDto
+import com.yatrisetu.app.data.remote.dto.ActivitySlotDto
+import com.yatrisetu.app.data.remote.dto.ItineraryDayDto
+import com.yatrisetu.app.data.remote.dto.ItineraryResponseDto
+import com.yatrisetu.app.data.remote.dto.ItineraryRequestDto
+import com.yatrisetu.app.domain.model.AlternativeAcceptance
+import com.yatrisetu.app.domain.model.AlternativeDestination
+import com.yatrisetu.app.domain.model.AlternativeWeatherInfo
+import com.yatrisetu.app.domain.model.AlternativesData
+import com.yatrisetu.app.domain.model.ActivitySlot
+import com.yatrisetu.app.domain.model.ItineraryDay
+import com.yatrisetu.app.domain.model.Itinerary
+import com.yatrisetu.app.domain.model.ItineraryRequest
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -237,3 +253,242 @@ fun CachedCrowdEntity.toDomain(): CrowdInfo {
         cachedAt = cachedAt
     )
 }
+
+fun AlternativeWeatherDto.toDomain(): AlternativeWeatherInfo {
+    return AlternativeWeatherInfo(
+        destinationId = destinationId,
+        temperature = temperature,
+        tempMinC = tempMinC,
+        tempMaxC = tempMaxC,
+        condition = condition,
+        humidity = humidity,
+        precipitationChance = precipitationChance,
+        provenanceLabel = provenanceLabel,
+        providerMode = providerMode,
+        cacheStatus = cacheStatus,
+        observedAt = observedAt,
+        temperatureRange = temperatureRange
+    )
+}
+
+fun AlternativeRecommendationDto.toDomain(): AlternativeDestination {
+    val level = if (crowdLevel.isNotBlank()) {
+        CrowdLevel.fromString(crowdLevel)
+    } else {
+        CrowdLevel.fromScore(crowdScore)
+    }
+
+    return AlternativeDestination(
+        id = id,
+        name = name,
+        tagline = tagline,
+        state = state,
+        heroImage = heroImage,
+        crowdScore = crowdScore.coerceIn(0, 100),
+        crowdLevel = level,
+        similarityScore = similarityScore.coerceIn(0, 100),
+        similarityProvenance = similarityProvenance,
+        originalCrowdScore = originalCrowdScore,
+        alternativeCrowdScore = alternativeCrowdScore,
+        crowdReductionPercent = crowdReductionPercent,
+        distanceKm = distanceKm,
+        geographicDistanceKm = geographicDistanceKm,
+        roadDistanceKm = roadDistanceKm,
+        distanceProvenance = distanceProvenance,
+        estimatedCostPerDay = estimatedCostPerDay,
+        costDifferencePercent = costDifferencePercent,
+        reasonsToRecommend = reasonsToRecommend,
+        sharedHighlights = sharedHighlights,
+        matchingAttributes = matchingAttributes,
+        keyExperience = keyExperience,
+        ecoTag = ecoTag,
+        destinationId = destinationId,
+        currentPressure = currentPressure,
+        expectedPressure = expectedPressure,
+        capacityStatus = capacityStatus,
+        availableCapacity = availableCapacity,
+        accessStatus = accessStatus,
+        weather = weather?.toDomain(),
+        weatherSummary = weatherSummary,
+        trafficSummary = trafficSummary,
+        homestayAvailability = homestayAvailability,
+        reasons = reasons,
+        provenance = provenance,
+        lastUpdated = lastUpdated
+    )
+}
+
+fun AlternativesResponseDto.toDomain(
+    isLive: Boolean = true,
+    cachedAt: Long? = null
+): AlternativesData {
+    val originLevel = if (originCrowdLevel.isNotBlank()) {
+        CrowdLevel.fromString(originCrowdLevel)
+    } else {
+        CrowdLevel.fromScore(originCrowdScore)
+    }
+
+    return AlternativesData(
+        originDestinationId = originDestinationId,
+        originDestinationName = originDestinationName,
+        originCrowdScore = originCrowdScore.coerceIn(0, 100),
+        originCrowdLevel = originLevel,
+        alternatives = alternatives.map { it.toDomain() },
+        isLive = isLive,
+        cachedAt = cachedAt
+    )
+}
+
+fun AlternativeAcceptanceResponseDto.toDomain(): AlternativeAcceptance {
+    return AlternativeAcceptance(
+        status = status,
+        eventId = eventId,
+        originalDestinationId = originalDestinationId,
+        alternativeDestinationId = alternativeDestinationId
+    )
+}
+
+// ==========================================
+// Phase 4: Itinerary Mappers
+// ==========================================
+
+fun ActivitySlotDto.toDomain(): ActivitySlot {
+    // Defensively fill fields that Groq LLM may omit, preventing null/blank
+    // values from propagating into the domain and causing 422 on optimize calls.
+    val safePeriod = period.ifBlank {
+        // Infer period from time_slot prefix as a best-effort fallback
+        when {
+            timeSlot.startsWith("05:") || timeSlot.startsWith("06:") || timeSlot.startsWith("07:") ||
+                timeSlot.startsWith("08:") || timeSlot.startsWith("09:") || timeSlot.startsWith("10:") ||
+                timeSlot.startsWith("11:") -> "Morning"
+            timeSlot.startsWith("12:") || timeSlot.startsWith("13:") || timeSlot.startsWith("14:") -> "Afternoon"
+            timeSlot.startsWith("15:") || timeSlot.startsWith("16:") || timeSlot.startsWith("17:") -> "Afternoon"
+            else -> "Evening"
+        }
+    }
+    return ActivitySlot(
+        timeSlot = timeSlot,
+        period = safePeriod,
+        title = title,
+        description = description,
+        locationName = locationName,
+        crowdForecast = crowdForecast.ifBlank { "Moderate" },
+        costEstimateInr = costEstimateInr,
+        durationHrs = if (durationHrs <= 0f) 1.5f else durationHrs,
+        travelTip = travelTip,
+        category = category.ifBlank { "Culture" },
+        imageUrl = imageUrl,
+        isWeatherAdapted = isWeatherAdapted,
+        adaptationReason = adaptationReason
+    )
+}
+
+fun ActivitySlot.toDto(): ActivitySlotDto {
+    // Apply fallbacks for required Pydantic fields — Groq LLM may produce
+    // activities missing period/crowd_forecast/duration_hrs/category.
+    // Empty or zero values must be replaced with Pydantic-acceptable defaults
+    // before the optimize request is sent to the backend.
+    return ActivitySlotDto(
+        timeSlot = timeSlot,
+        period = period.ifBlank { "Morning" },
+        title = title,
+        description = description,
+        locationName = locationName,
+        crowdForecast = crowdForecast.ifBlank { "Moderate" },
+        costEstimateInr = costEstimateInr,
+        durationHrs = if (durationHrs <= 0f) 1.5f else durationHrs,
+        travelTip = travelTip,
+        category = category.ifBlank { "Culture" },
+        imageUrl = imageUrl,
+        isWeatherAdapted = isWeatherAdapted,
+        adaptationReason = adaptationReason
+    )
+}
+
+fun ItineraryDayDto.toDomain(): ItineraryDay {
+    return ItineraryDay(
+        dayNumber = dayNumber,
+        theme = theme,
+        overview = overview,
+        estimatedBudgetInr = estimatedBudgetInr,
+        activities = activities.map { it.toDomain() },
+        transitAdvice = transitAdvice
+    )
+}
+
+fun ItineraryDay.toDto(): ItineraryDayDto {
+    return ItineraryDayDto(
+        dayNumber = dayNumber,
+        theme = theme,
+        overview = overview,
+        estimatedBudgetInr = estimatedBudgetInr,
+        activities = activities.map { it.toDto() },
+        transitAdvice = transitAdvice.ifBlank { "Local shared transit and walking recommended." }
+    )
+}
+
+fun ItineraryResponseDto.toDomain(
+    isLive: Boolean = true,
+    cachedAt: Long? = null
+): Itinerary {
+    return Itinerary(
+        itineraryId = itineraryId,
+        destinationId = destinationId,
+        destinationName = destinationName,
+        durationDays = durationDays,
+        travelerType = travelerType,
+        pace = pace,
+        interests = interests,
+        totalEstimatedBudgetInr = totalEstimatedBudgetInr,
+        crowdAvoidanceRating = crowdAvoidanceRating,
+        localEconomicImpactTag = localEconomicImpactTag,
+        days = days.map { it.toDomain() },
+        aiGeneratedNote = aiGeneratedNote,
+        sustainabilityScore = sustainabilityScore,
+        sustainabilityClassification = sustainabilityClassification,
+        weatherAdaptationNotice = weatherAdaptationNotice,
+        whyThisItinerary = whyThisItinerary,
+        aiProviderUsed = aiProviderUsed,
+        optimizationHistory = optimizationHistory,
+        isLive = isLive,
+        cachedAt = cachedAt
+    )
+}
+
+fun Itinerary.toResponseDto(): ItineraryResponseDto {
+    return ItineraryResponseDto(
+        itineraryId = itineraryId,
+        destinationId = destinationId,
+        destinationName = destinationName,
+        durationDays = durationDays,
+        travelerType = travelerType,
+        pace = pace,
+        interests = interests,
+        totalEstimatedBudgetInr = totalEstimatedBudgetInr,
+        crowdAvoidanceRating = crowdAvoidanceRating,
+        localEconomicImpactTag = localEconomicImpactTag,
+        days = days.map { it.toDto() },
+        aiGeneratedNote = aiGeneratedNote,
+        sustainabilityScore = sustainabilityScore,
+        sustainabilityClassification = sustainabilityClassification,
+        weatherAdaptationNotice = weatherAdaptationNotice,
+        whyThisItinerary = whyThisItinerary,
+        aiProviderUsed = aiProviderUsed,
+        optimizationHistory = optimizationHistory
+    )
+}
+
+fun ItineraryRequest.toDto(): ItineraryRequestDto {
+    return ItineraryRequestDto(
+        destinationId = destinationId,
+        durationDays = durationDays.coerceIn(1, 5),
+        travelerType = travelerType,
+        pace = pace,
+        interests = interests,
+        budgetLevel = budgetLevel,
+        startDate = startDate,
+        optimizeForWeather = optimizeForWeather
+    )
+}
+
+

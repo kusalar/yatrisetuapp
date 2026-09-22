@@ -62,6 +62,7 @@ fun DestinationDetailScreen(
     onNavigateBack: () -> Unit,
     onNavigateToCrowd: (String) -> Unit,
     onNavigateToAlternatives: (String) -> Unit,
+    onNavigateToItinerary: (String, String) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
     viewModel: DestinationDetailViewModel = viewModel(
         factory = DestinationDetailViewModel.Factory(
@@ -338,13 +339,27 @@ fun DestinationDetailScreen(
                     }
                 }
 
-                // Find Alternatives Button
+                // Action Buttons
                 item {
                     Spacer(modifier = Modifier.height(YatriSpacing.m))
-                    Box(modifier = Modifier.padding(horizontal = YatriSpacing.l)) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = YatriSpacing.l),
+                        verticalArrangement = Arrangement.spacedBy(YatriSpacing.s)
+                    ) {
+                        YatriButton(
+                            onClick = { onNavigateToItinerary(dest.id, dest.name) },
+                            modifier = Modifier.fillMaxWidth(),
+                            variant = YatriButtonVariant.PRIMARY
+                        ) {
+                            Text("Plan Trip with AI")
+                        }
+
                         YatriButton(
                             onClick = { onNavigateToAlternatives(dest.id) },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            variant = YatriButtonVariant.SECONDARY
                         ) {
                             Text("Find Low-Crowd Alternatives")
                         }

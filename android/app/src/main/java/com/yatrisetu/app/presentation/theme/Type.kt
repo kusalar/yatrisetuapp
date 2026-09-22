@@ -28,6 +28,14 @@ object YatriTypographyTokens {
         letterSpacing = (-0.5).sp
     )
 
+    val DisplaySmall = TextStyle(
+        fontFamily = YatriSansFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 24.sp,
+        lineHeight = 30.sp,
+        letterSpacing = (-0.25).sp
+    )
+
     // Editorial destination title (Cormorant Garamond italic serif style)
     val EditorialDestinationTitle = TextStyle(
         fontFamily = YatriEditorialFontFamily,
@@ -88,6 +96,14 @@ object YatriTypographyTokens {
         letterSpacing = 0.2.sp
     )
 
+    val BodySmall = TextStyle(
+        fontFamily = YatriSansFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.2.sp
+    )
+
     val LabelLarge = TextStyle(
         fontFamily = YatriSansFontFamily,
         fontWeight = FontWeight.Bold,
@@ -127,12 +143,14 @@ object YatriTypographyTokens {
  */
 val YatriTypography = Typography(
     displayLarge = YatriTypographyTokens.DisplayLarge,
+    displaySmall = YatriTypographyTokens.DisplaySmall,
     headlineLarge = YatriTypographyTokens.HeadlineLarge,
     headlineMedium = YatriTypographyTokens.HeadlineMedium,
     titleLarge = YatriTypographyTokens.TitleLarge,
     titleMedium = YatriTypographyTokens.TitleMedium,
     bodyLarge = YatriTypographyTokens.BodyLarge,
     bodyMedium = YatriTypographyTokens.BodyMedium,
+    bodySmall = YatriTypographyTokens.BodySmall,
     labelLarge = YatriTypographyTokens.LabelLarge,
     labelSmall = YatriTypographyTokens.LabelSmall
 )

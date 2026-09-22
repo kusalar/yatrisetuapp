@@ -12,6 +12,12 @@ object RepositoryProvider {
     @Volatile
     private var crowdRepo: CrowdRepository? = null
 
+    @Volatile
+    private var alternativesRepo: AlternativesRepository? = null
+
+    @Volatile
+    private var itineraryRepo: ItineraryRepository? = null
+
     fun getDestinationRepository(context: Context): DestinationRepository {
         return destinationRepo ?: synchronized(this) {
             destinationRepo ?: run {
@@ -36,11 +42,39 @@ object RepositoryProvider {
         }
     }
 
+    fun getAlternativesRepository(context: Context): AlternativesRepository {
+        return alternativesRepo ?: synchronized(this) {
+            alternativesRepo ?: run {
+                AlternativesRepositoryImpl(
+                    api = NetworkClient.api
+                ).also { alternativesRepo = it }
+            }
+        }
+    }
+
+    fun getItineraryRepository(context: Context): ItineraryRepository {
+        return itineraryRepo ?: synchronized(this) {
+            itineraryRepo ?: run {
+                ItineraryRepositoryImpl(
+                    api = NetworkClient.api
+                ).also { itineraryRepo = it }
+            }
+        }
+    }
+
     fun setDestinationRepositoryForTesting(repository: DestinationRepository?) {
         destinationRepo = repository
     }
 
     fun setCrowdRepositoryForTesting(repository: CrowdRepository?) {
         crowdRepo = repository
+    }
+
+    fun setAlternativesRepositoryForTesting(repository: AlternativesRepository?) {
+        alternativesRepo = repository
+    }
+
+    fun setItineraryRepositoryForTesting(repository: ItineraryRepository?) {
+        itineraryRepo = repository
     }
 }

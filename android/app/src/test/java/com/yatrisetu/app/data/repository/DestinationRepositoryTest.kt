@@ -70,6 +70,28 @@ class FakeYatriSetuApi(
         if (shouldFail) throw ConnectException("Connection refused")
         return Response.success(AlternativesResponseDto())
     }
+
+    override suspend fun acceptAlternative(
+        id: String,
+        body: com.yatrisetu.app.data.remote.dto.AlternativeAcceptanceRequestDto
+    ): Response<com.yatrisetu.app.data.remote.dto.AlternativeAcceptanceResponseDto> {
+        if (shouldFail) throw ConnectException("Connection refused")
+        return Response.success(com.yatrisetu.app.data.remote.dto.AlternativeAcceptanceResponseDto())
+    }
+
+    override suspend fun generateItinerary(
+        request: com.yatrisetu.app.data.remote.dto.ItineraryRequestDto
+    ): Response<com.yatrisetu.app.data.remote.dto.ItineraryResponseDto> {
+        if (shouldFail) throw ConnectException("Connection refused")
+        return Response.success(com.yatrisetu.app.data.remote.dto.ItineraryResponseDto())
+    }
+
+    override suspend fun optimizeItinerary(
+        request: com.yatrisetu.app.data.remote.dto.ItineraryOptimizeRequestDto
+    ): Response<com.yatrisetu.app.data.remote.dto.ItineraryResponseDto> {
+        if (shouldFail) throw ConnectException("Connection refused")
+        return Response.success(com.yatrisetu.app.data.remote.dto.ItineraryResponseDto())
+    }
 }
 
 class DestinationRepositoryTest {

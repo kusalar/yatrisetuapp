@@ -35,4 +35,20 @@ interface YatriSetuApi {
     suspend fun getDestinationAlternatives(
         @Path("id") id: String
     ): Response<AlternativesResponseDto>
+
+    @retrofit2.http.POST("destinations/{id}/accept-alternative")
+    suspend fun acceptAlternative(
+        @Path("id") id: String,
+        @retrofit2.http.Body body: com.yatrisetu.app.data.remote.dto.AlternativeAcceptanceRequestDto
+    ): Response<com.yatrisetu.app.data.remote.dto.AlternativeAcceptanceResponseDto>
+
+    @retrofit2.http.POST("itinerary/generate")
+    suspend fun generateItinerary(
+        @retrofit2.http.Body request: com.yatrisetu.app.data.remote.dto.ItineraryRequestDto
+    ): Response<com.yatrisetu.app.data.remote.dto.ItineraryResponseDto>
+
+    @retrofit2.http.POST("itinerary/optimize")
+    suspend fun optimizeItinerary(
+        @retrofit2.http.Body request: com.yatrisetu.app.data.remote.dto.ItineraryOptimizeRequestDto
+    ): Response<com.yatrisetu.app.data.remote.dto.ItineraryResponseDto>
 }

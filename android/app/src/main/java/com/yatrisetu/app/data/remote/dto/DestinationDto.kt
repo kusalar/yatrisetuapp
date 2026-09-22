@@ -67,27 +67,3 @@ data class DestinationDetailDto(
     @SerialName("tags") val tags: List<String> = emptyList()
 )
 
-@Serializable
-data class AlternativeRecommendationDto(
-    @SerialName("id") val id: String,
-    @SerialName("name") val name: String,
-    @SerialName("tagline") val tagline: String = "",
-    @SerialName("hero_image") val heroImage: String = "",
-    @SerialName("crowd_score") val crowdScore: Int = 0,
-    @SerialName("crowd_level") val crowdLevel: String = "LOW",
-    @SerialName("similarity_score") val similarityScore: Int = 0,
-    @SerialName("crowd_reduction_percent") val crowdReductionPercent: Int = 0,
-    @SerialName("distance_km") val distanceKm: Float = 0f,
-    @SerialName("estimated_cost_per_day") val estimatedCostPerDay: Int = 0,
-    @SerialName("cost_difference_percent") val costDifferencePercent: Int = 0,
-    @SerialName("reasons_to_recommend") val reasonsToRecommend: List<String> = emptyList(),
-    @SerialName("shared_highlights") val sharedHighlights: List<String> = emptyList(),
-    @SerialName("capacity_status") val capacityStatus: String = "HEALTHY",
-    @SerialName("access_status") val accessStatus: String = "OPEN"
-)
-
-@Serializable
-data class AlternativesResponseDto(
-    @SerialName("origin_destination_id") val originDestinationId: String = "",
-    @SerialName("alternatives") val alternatives: List<AlternativeRecommendationDto> = emptyList()
-)
